@@ -1,3 +1,5 @@
+// 我跑了一個晚上卻沒有跑出答案，不太確定是不是跑的不夠久。                                              
+
 #include <stdio.h>
 #include <stdlib.h>
 #include<time.h>
