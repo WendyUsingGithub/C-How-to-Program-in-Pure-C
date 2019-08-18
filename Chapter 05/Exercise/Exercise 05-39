@@ -1,0 +1,27 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int GCD(int a, int b);
+
+int main()
+{
+	int a = 0;
+	int b = 0;
+
+	scanf_s("%d", &a);
+	scanf_s("%d", &b);
+	printf("%d", GCD(a, b));
+	return 0;
+}
+
+int GCD(int a, int b)
+{
+	if ((a % b) == 0)
+	{
+		return b;
+	}
+	else
+	{
+		return GCD(b, (a % b));
+	}
+}
