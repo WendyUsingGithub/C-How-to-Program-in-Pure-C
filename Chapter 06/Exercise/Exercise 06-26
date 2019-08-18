@@ -1,0 +1,275 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define SIZE 8
+
+int ruleOutBlanks(int Row, int Column, const int board[SIZE][SIZE]);
+int updateBoard(int Row, int Column, int board[SIZE][SIZE], int queen);
+int printArray(int array[SIZE][SIZE]);
+int copyboard(const int board[SIZE][SIZE], int copyboard[SIZE][SIZE]);
+int chessmove(int board[SIZE][SIZE]);
+int isBoardFull(int board[SIZE][SIZE]);
+
+int main()
+{
+	srand(time(0));
+
+	int board[SIZE][SIZE] = { 0 }; // chessboard
+	int tempboard[SIZE][SIZE] = { 0 }; // chessboard been temporarily update using an attempted move
+	int queen = 0; // there are 8 queens
+	int Row = 0; // row of chessboard
+	int Column = 0; // column of chessboard
+	int MINruleOut = 32; // minimum rule out number
+	int MINruleOutRow = 0; // index which minimum rule out number occur
+	int MINruleOutColumn = 0; // index which minimum rule out number occur
+	int nextMINruleOut = 32; // MINruleOut of attempted move's next attempted move
+	
+	for (queen = 0; queen < SIZE; queen++) 
+	{
+		int MINruleOut = 32; // 8*4 = 32 , bigger than MAX rule out number
+
+		for (Row = 0; Row < SIZE; Row++)
+		{
+			for (Column = 0; Column < SIZE; Column++)
+			{
+				// check if the position has been rule out or not
+				if (board[Row][Column] == 0) 
+				{
+					// printf("[%d][%d] blanks rule out %d\n", Row, Column,ruleOutBlanks(Row, Column, board));
+					if (ruleOutBlanks(Row, Column, board) <= MINruleOut)
+					{
+						if (ruleOutBlanks(Row, Column, board) < MINruleOut)
+						{
+							MINruleOut = ruleOutBlanks(Row, Column, board); // how many blanks will be rule out
+							MINruleOutRow = Row; // record the index
+							MINruleOutColumn = Column;
+
+							copyboard(board, tempboard); 
+							updateBoard(Row, Column, tempboard, queen + 1); // if this move is actually performed 
+							nextMINruleOut = chessmove(tempboard);  // find the MINruleOut of attempted move's next attempted move
+							//printf("-> MIN blanks rule out %d , Next is %d\n", MINruleOut, nextMINruleOut);
+						}
+						// if there are more than one attempted move have the same rule out number
+						else 
+						{
+							copyboard(board, tempboard);
+							updateBoard(Row, Column, tempboard, queen + 1); // if this move is actually performed 
+
+							// find the move whose next attempted move has the minimun MINruleOutRow
+							if (chessmove(tempboard) < nextMINruleOut)
+							{
+								MINruleOutRow = Row;
+								MINruleOutColumn = Column;
+								nextMINruleOut = chessmove(tempboard);
+								printf("-> Next compare blanks rule out number is %d\n", nextMINruleOut);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		updateBoard(MINruleOutRow, MINruleOutColumn, board, queen + 1);
+		printArray(board);
+
+		// check if the chessboard is already full
+		if (isBoardFull(board) == 0) 
+		{
+			if (queen < 7)
+			{
+				printf("Fail at %d queen\n", queen+1);
+				return 0;
+			}
+			else
+			{
+				printf("Success\n\n");
+				return 0;
+			}
+		}
+	}
+}
+ 
+//  Update the board , assign the value of queen to her own position and those who has been rule our by her
+int updateBoard(int Row, int Column, int board[SIZE][SIZE], int queen)
+{
+	int i = 0;
+	int j = 0;
+	int count = 1;
+
+	for (i = -7; i <= 7; i++) // 8-1 = 7
+	{
+		board[Row][Column] = queen * 10; // to identify the location of queen after array been print out
+
+		if (i != 0) // i = 0 is the position of queen
+		{
+			if (Row >= 0 && Row < 8 && Column + i >= 0 && Column + i < 8 && board[Row][Column + i] == 0)
+			{
+				board[Row][Column + i] = queen; // rule out same row
+			}
+
+			if (Row + i >= 0 && Row + i < 8 && Column >= 0 && Column < 8 && board[Row + i][Column] == 0)
+			{
+				board[Row + i][Column] = queen; // rule out same column 
+			}
+
+			if (Row + i >= 0 && Row + i < 8 && Column + i >= 0 && Column + i < 8 && board[Row + i][Column + i] == 0)
+			{
+				board[Row + i][Column + i] = queen; // rule out upper right diagonal
+			}
+
+			if (Row + i >= 0 && Row + i < 8 && Column - i >= 0 && Column - i < 8 && board[Row + i][Column - i] == 0)
+			{
+				board[Row + i][Column - i] = queen; // rule out lower left diagonal
+			}
+		}
+	}
+	return 0;
+}
+
+// Return the number of rule out blanks of assigned position
+int ruleOutBlanks(int Row, int Column, const int board[SIZE][SIZE])
+{
+	int i = 0;
+	int j = 0;
+	int count = 1;
+
+	for (i = -7; i <= 7; i++)
+	{
+		if (i != 0)
+		{
+			if (Row >= 0 && Row < 8 && Column + i >= 0 && Column + i < 8 && board[Row][Column + i] == 0)
+			{
+				count++; // rule out same row
+			}
+
+			if (Row + i >= 0 && Row + i < 8 && Column >= 0 && Column < 8 && board[Row + i][Column] == 0)
+			{
+				count++; // rule out same column 
+			}
+
+			if (Row + i >= 0 && Row + i < 8 && Column + i >= 0 && Column + i < 8 && board[Row + i][Column + i] == 0)
+			{
+				count++; // rule out upper right diagonal
+			}
+
+			if (Row + i >= 0 && Row + i < 8 && Column - i >= 0 && Column - i < 8 && board[Row + i][Column - i] == 0)
+			{
+				count++; // rule out lower left diagonal
+			}
+		}
+	}
+	return count;
+}
+
+// Print an array
+int printArray(int array[SIZE][SIZE])
+{
+	int i = 0;
+	int j = 0;
+
+	for (i = 0; i < SIZE; i++)
+	{
+		printf("-----");
+	}
+	printf("-\n");
+
+	for (i = 0; i < SIZE; i++)
+	{
+		for (j = 0; j < SIZE; j++)
+		{
+			if (array[i][j] != 0)
+			{
+				if (array[i][j] == 1)
+				{
+					printf(". %2d ", array[i][j]);
+				}
+				else
+				{
+					printf(". %2d ", array[i][j]);
+				}
+			}
+			else
+			{
+				printf(".    ");
+			}
+		}
+		printf(".\n");
+		for (j = 0; j < SIZE; j++)
+		{
+			printf("-----");
+		}
+		printf("-\n");
+	}
+	return 0;
+}
+
+// Copy an array
+int copyboard(const int board[SIZE][SIZE], int copyboard[SIZE][SIZE])
+{
+	int i = 0;
+	int j = 0;
+	for (i = 0; i < SIZE; i++)
+	{
+		for (j = 0; j < SIZE; j++)
+		{
+			copyboard[i][j] = board[i][j];
+		}
+	}
+	return 0;
+}
+
+// Retrn the minimun rule out number of the assigned board
+int chessmove(int board[SIZE][SIZE])
+{
+	int Row = 0;
+	int Column = 0;
+	int MINruleOut = 32;
+	int MINruleOutRow = 0;
+	int MINruleOutColumn = 0;
+
+	for (Row = 0; Row < SIZE; Row++)
+	{
+		for (Column = 0; Column < SIZE; Column++)
+		{
+			// this posiotion hasnt been role out 
+			if (board[Row][Column] == 0)
+			{
+				if (ruleOutBlanks(Row, Column, board) < MINruleOut)
+				{
+					MINruleOut = ruleOutBlanks(Row, Column, board);
+				}
+			}
+		}
+	}
+	return MINruleOut;
+}
+
+// Return 0 if the board is full
+// Rerurn 1 if the board is not full
+int isBoardFull(int board[SIZE][SIZE])
+{
+	int Row = 0;
+	int Column = 0;
+	int count = 0;
+
+	for (Row = 0; Row < SIZE; Row++)
+	{
+		for (Column = 0; Column < SIZE; Column++)
+		{
+			if (board[Row][Column] == 0) // if the position hasn't been rule out
+			{
+				count++;			
+			}
+		}
+	}
+
+	if (count == 0) 
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+}
