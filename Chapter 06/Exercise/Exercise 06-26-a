@@ -1,3 +1,6 @@
+// 八皇后問題，使用heuristic函數，將下一個皇后放在去除數目最小的位置，如果有一個以上的位置有相同的去除數目，
+// 那就再比較誰的下一步可以找到去除最小數目的位置。
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
