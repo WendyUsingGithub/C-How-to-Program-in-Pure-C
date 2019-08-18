@@ -1,0 +1,130 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#define SIZE 15
+
+// Function prototypes
+int binarysearch(const int b[], int searchKey, int low, int high);
+int printHeader();
+int printRow(const int b[], int low, int mid, int high);
+
+int main()
+{
+	int a[SIZE] = { 0 };
+	int i = 0;
+	int key = 0;
+	int result = 0; // variable to hold location of key or -1
+
+	// Create data in array a
+	for (i = 0; i < SIZE; i++)
+	{
+		a[i] = 2 * i;
+	} // 0 2 4 6 ... 28
+
+	printf("Print a number between 0 and %d : ", 2 * (SIZE - 1));
+	scanf_s("%d", &key);
+	printHeader();
+	printRow(a, 0, ceil(SIZE/2), SIZE-1);
+	result = binarysearch(a, key, 0, SIZE - 1);
+	printf("\nIndex %d has the key value\n", result);
+}
+
+// Fuction printHeader
+int printHeader()
+{
+	int i;
+	int result = 0;
+
+	printf("\nSubscripts:\n\n");
+
+	// outpur column head
+	for (i = 0; i < SIZE; i++)
+	{
+		printf("%4d", i);
+	}
+
+	printf("\n");
+
+	for (i = 0; i < SIZE; i++)
+	{
+		printf("----");
+	}
+	return 0;
+}
+
+// Fuction binarySearch
+// b[] is the database array to be search
+// searchkey is the value to be found
+// low is the Lower limit to the current search area
+// high is the higher limit to the current search area
+int binarysearch(const int b[], int searchKey, int low, int high)
+{
+	int middle = 0;
+
+	middle = ceil((SIZE - 1) / 2.0);
+	while (high != middle)
+	{
+		if (b[middle] == searchKey)
+		{
+			printRow(b, middle, middle, middle); // print the last row of search area
+			return middle;
+		}
+		else if (searchKey > b[middle])
+		{
+			low = middle + 1; // update search area
+		}
+		else if (searchKey < b[middle])
+		{
+			high = middle - 1; // update search area
+		}
+
+		middle = ceil((low + high) / 2.0);
+
+		if (high == middle)
+		{
+			if (b[low] == searchKey)
+			{
+				printRow(b, low, low, low); // print the last row of search area
+				return low;
+			}
+			else if (b[high] == searchKey)
+			{
+				printRow(b, high, high, high); // print the last row of search area
+				return high;
+			}
+		}
+		printRow(b, low, middle, high);
+	}
+
+	printf("\nNot found");
+	return -1;
+}
+
+int printRow(const int b[], int low, int middle, int high)
+{
+	int i = 0;
+
+	printf("\n");
+
+	for (i = 0; i < low; i++)
+	{
+		printf("    ");
+	}
+
+	for (i = low; i <= high; i++)
+	{
+		if (i == middle)
+		{
+			printf("%4d*", b[i]);
+		}
+		else if (i == (middle + 1))
+		{
+			printf("%3d", b[i]);
+		}
+		else
+		{
+			printf("%4d", b[i]);
+		}
+	}
+	printf("\n");
+}
