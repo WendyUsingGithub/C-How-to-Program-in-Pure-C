@@ -1,0 +1,128 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include<time.h>
+
+#define SIZE 8
+
+int isMovementValid(int board[SIZE][SIZE], int movement, int currentRow, int currentColumn);
+int isMoveExist(int board[SIZE][SIZE], int currentRow, int currentColumn);
+int arrayAllZero(int board[SIZE][SIZE]);
+
+int main()
+{
+	int horizontal[8] = { 2 , 1 , -1 , -2 , -2 , -1 , 1 , 2 }; // every position on board has 8 different moves , each move contains horizontal move and verticle move
+	int verticle[8] = { -1 , -2 , -2 , -1 , 1 , 2 , 2 , 1 }; // every position on board has 8 different moves , each move contains horizontal move and verticle move
+	int movement = 0; // there are maximun 8 valid movement
+	int currentRow = 0; // the location of knight currently
+	int currentColumn = 0; // the location of knight currently
+	int tempCurrentRow = 0; // the location of knight's attempted next move
+	int tempCurrentColumn = 0; // the location of knight's attempted next move
+	int successcounter = 0; // record time of success
+	int board[SIZE][SIZE] = { 0 }; // chessboard
+	int gameLength[1000] = { 0 }; // record which moves the game ends each time
+	int i = 0; // counter
+	int j = 0; // counter
+
+	srand(time(NULL));
+
+	while (j < 64)
+	{
+		i++;
+		arrayAllZero(board); // initialize all element of the board to  0
+
+		for (j = 0; j < 64; j++) // maximun 64 moves on chessboard
+		{
+			// check if there is any exist valid move
+			if (isMoveExist(board, currentRow, currentColumn) != 0)
+			{
+				printf("%d-th has %d game length\n", i, j);
+				break;
+			}
+
+			// choose the movement randomly
+			movement = rand() % 8;
+
+			// check if the randomly chosen movement valid or not , if not , choose a new random move 
+			while (isMovementValid(board, movement, currentRow, currentColumn) != 0)
+			{
+				movement = rand() % 8;
+			}
+			currentRow = currentRow + verticle[movement];
+			currentColumn = currentColumn + horizontal[movement];
+			board[currentRow][currentColumn] = j; // update the board
+		} 
+
+		if (j == 64)
+		{
+			successcounter++;
+		}
+	}
+
+	printf("The knight success %d times", successcounter);
+	return 0;
+}
+
+// Check if the assigned movement is valid or not at the assignes location
+// Return 0 if valid
+// Return 1 if not valid
+int isMovementValid(int board[SIZE][SIZE], int movement, int currentRow, int currentColumn)
+{
+	int horizontal[8] = { 2 , 1 , -1 , -2 , -2 , -1 , 1 , 2 }; // every position on board has 8 different moves , each move contains horizontal move and verticle move
+	int verticle[8] = { -1 , -2 , -2 , -1 , 1 , 2 , 2 , 1 };
+	int tempCurrentRow = 0;
+	int tempCurrentColumn = 0;
+
+	tempCurrentRow = currentRow + verticle[movement];
+	tempCurrentColumn = currentColumn + horizontal[movement];
+
+	if (board[tempCurrentRow][tempCurrentColumn] == 0 && tempCurrentRow < 8 && tempCurrentRow >= 0
+		&& tempCurrentColumn < 8 && tempCurrentColumn >= 0)
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+// Check if there is any exist valid move
+// Return 0 if there is
+// Return 1 if there is not
+int isMoveExist(int board[SIZE][SIZE], int currentRow, int currentColumn)
+{
+	int i = 0;
+	int count = 0;
+
+	for (i = 0; i < 8; i++)
+	{
+		if (isMovementValid(board, i, currentRow, currentColumn) != 0)
+		{
+			count++;
+		}
+	}
+	if (count == 8)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+	
+// Initialize all element of the array to 0
+int arrayAllZero(int board[SIZE][SIZE])
+{
+	int i = 0;
+	int j = 0;
+
+	for (i = 0; i < SIZE; i++)
+	{
+		for (j = 0; j < SIZE; j++)
+		{
+			board[i][j] = 0;
+		}
+	}
+	return 0;
+}
